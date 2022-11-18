@@ -2,12 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+//returns EXIT_FAILURE if snippet of text has a "\n"
 int checkParagraph(char* str){
   for(int i = 0; i < strlen(str); i++){
     if(str[i] == '\n') return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }
+
 
 int main(int argc, char* argv[]){
   FILE * fp;
@@ -39,7 +42,7 @@ int main(int argc, char* argv[]){
 
     fread(buffer, atoi(argv[3]), 1, fp);
     
-    while(checkParagraph(buffer) == 1){
+    while(checkParagraph(buffer) == EXIT_FAILURE){
 
       offset = rand() % len;
       fseek( fp, offset, SEEK_SET );
