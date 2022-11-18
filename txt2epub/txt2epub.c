@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
 
     if(fork() == 0){
       
-      printf("[%d] converting %s...\n", getpid(), argv[i]);
+      printf("[pid%d] converting %s...\n", getpid(), argv[i]);
 
       int success = system(command);
       exit(success);
