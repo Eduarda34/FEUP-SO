@@ -1,2 +1,2 @@
 gcc samples.c -o samples
-./samples quotes.txt 15 10
+./samples quote.txt 6 5
