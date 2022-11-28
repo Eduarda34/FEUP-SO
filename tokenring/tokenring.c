@@ -9,7 +9,7 @@
 #include <string.h>
 #include <time.h>
 
-int processWaitingRoom(char* fifo, int current, int next, int n, float p, int t){
+int processWaitingRoom(char* readingFifo, char* writingFifo, int current, int n, float p, int t){
   //printf("%s -> %d\n", fifo, getpid()); 
   
 
@@ -21,18 +21,29 @@ int processWaitingRoom(char* fifo, int current, int next, int n, float p, int t)
 
   char token[20];
 
-  char* readingFifo = fifo;
-  char writingFifo[strlen(fifo)];
-  if(next == n) snprintf(writingFifo, strlen(fifo) + 1, "pipe%dto%d", next, 1);
-  else 		snprintf(writingFifo, strlen(fifo) + 1, "pipe%dto%d", next, next+1);
+  //printf("[p%d] readingFifo: %s\n", current, readingFifo);
+  //printf("[p%d] writingFifo: %s\n", current, writingFifo);
+
+
+
+  if(current == 1){
+    sleep(3);
+    int fd = open(writingFifo, O_WRONLY);
+    write(fd, "0", strlen("0") + 1);
+    close(fd);
+  }
 
 
   while(1){
+
+    //printf("[p%d] beggining of loop\n", current);
 
     int fd;
     fd = open(readingFifo, O_RDONLY);
     //if(fd == -1) break;
     read(fd, token, 20);
+    if(strlen(token) == 0) continue;
+    //printf("[p%d] after read\n", current);
     close(fd);
 
     
@@ -40,6 +51,7 @@ int processWaitingRoom(char* fifo, int current, int next, int n, float p, int t)
     int newDecimal = 0;
     if(token[strlen(token) - 1] == '9') newDecimal = 1;
     snprintf(token, strlen(token) + 1 + newDecimal, "%d", tokenInt);
+    //printf("[p%d] token: %s\n", current, token);
    
     float jail = ((float) (rand() % 10000))/10000;
     
@@ -50,16 +62,21 @@ int processWaitingRoom(char* fifo, int current, int next, int n, float p, int t)
     //printf("CURRENT: %d;\ttoken: %d;\tnextfifo: %s\tpid: %d\n", current, tokenInt - 1, fifo, getpid());
 
     if(jail < p){
-      printf("[p%d] lock on token (val = %s)\n", current, token);
+      printf("[p%d]\tlock on token (val = %s)\n", current, token);
       //printf("jail: %f\n", jail);
       //printf("p: %f\n", p);
       sleep(t);
-      printf("[p%d] unlock token\n", current);
+      //usleep(500);
+      printf("[p%d]\tunlock token\n", current);
     }
-
+    
+    //printf("[p%d] popo\n", current);
     fd = open(writingFifo, O_WRONLY);
+    //printf("[p%d] popo2\n", current);
     write(fd, token, 20);
+    //printf("[p%d] popo3\n", current);
     close(fd);
+    //printf("[p%d] popo4\n", current);
     //if(tokenInt + (n - current) > 100){
       //break;
     //}
@@ -89,25 +106,32 @@ int main(int argc, char* argv[]){
 
   for(int i = 1; i <= n; i++){
 
+    int current = i;
+    int next;
+    int before;
+    
+    if( i == n ) 	next = 1;
+    else 		next = i +1;
+    
+    if(i == 1) 	before = n;
+    else 	 	before = current - 1;
+
+    //printf("child\t[pid %d]\nmaking pipe%dto%d\n", getpid(), current, next);
+    //printf("making pipe%dto%d\n", current, next);
+    
+    char readingFifo[20];
+    char writingFifo[20];
+
+    snprintf(readingFifo, sizeof(readingFifo), "pipe%dto%d", before, current);
+    snprintf(writingFifo, sizeof(writingFifo), "pipe%dto%d", current, next);
+
+    printf("creating %s\n", writingFifo);
+
+    int fd = mkfifo(writingFifo, 0666);
+    //printf("fd: %d\n", fd);
+
     if(fork() == 0){
-      int current = i;
-      int next;
-      if( i == n ) next = 1;
-      else next = i +1;
-
-      //printf("child\t[pid %d]\nmaking pipe%dto%d\n", getpid(), current, next);
-      //printf("making pipe%dto%d\n", current, next);
-      
-      char pipeName[20];
-
-      snprintf(pipeName, sizeof(pipeName), "pipe%dto%d", current, next);
-
-      printf("creating %s\n", pipeName);
-
-      int fd = mkfifo(pipeName, 0666);
-      //printf("fd: %d\n", fd);
-
-      processWaitingRoom(pipeName, current, next, n, p, t);
+      processWaitingRoom(readingFifo, writingFifo, current, n, p, t);
 
       exit(0);
     }else{
@@ -119,16 +143,16 @@ int main(int argc, char* argv[]){
   
   }
 
-  sleep(2);
+  //sleep(2);
 
 
-  char fifo[20] = "";
-  snprintf(fifo, sizeof(fifo), "pipe%dto%d", 1, 2);
+  //char fifo[20] = "";
+  //snprintf(fifo, sizeof(fifo), "pipe%dto%d", 1, 2);
   //printf("%s\n", fifo);
 
-  int fd = open(fifo,O_WRONLY);
-  write(fd, "0", strlen("0"));
-  close(fd);
+  //int fd = open(fifo,O_WRONLY);
+  //write(fd, "0", strlen("0"));
+  //close(fd);
 
 
 
