@@ -25,14 +25,14 @@ int processWaitingRoom(char* readingFifo, char* writingFifo, int current, int n,
   //printf("[p%d] writingFifo: %s\n", current, writingFifo);
 
 
-  printf("waiting room\n");
+  //printf("waiting room\n");
 
   sleep(3); 
 
   int readingFd;
   int writingFd;
-  printf("[p%d] readingFifo: %s\n", current, readingFifo);
-  printf("[p%d] writingFifo: %s\n", current, writingFifo);
+  //printf("[p%d] readingFifo: %s\n", current, readingFifo);
+  //printf("[p%d] writingFifo: %s\n", current, writingFifo);
     
   if(current == 1){
     printf("start of cycle\n");
