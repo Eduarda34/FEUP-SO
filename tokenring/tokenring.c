@@ -25,26 +25,39 @@ int processWaitingRoom(char* readingFifo, char* writingFifo, int current, int n,
   //printf("[p%d] writingFifo: %s\n", current, writingFifo);
 
 
+  printf("waiting room\n");
 
+  sleep(3); 
+
+  int readingFd;
+  int writingFd;
+  printf("[p%d] readingFifo: %s\n", current, readingFifo);
+  printf("[p%d] writingFifo: %s\n", current, writingFifo);
+    
   if(current == 1){
+    printf("start of cycle\n");
     sleep(3);
-    int fd = open(writingFifo, O_WRONLY);
-    write(fd, "0", strlen("0") + 1);
-    close(fd);
+    writingFd = open(writingFifo , O_WRONLY);
+    write(writingFd, "0", strlen("0") + 1);
   }
 
+  readingFd = open(readingFifo, O_RDONLY);
+  printf("read Fifo\n");
+  writingFd = open(writingFifo , O_WRONLY);
+  printf("written Fifo\n");
+    
 
   while(1){
 
     //printf("[p%d] beggining of loop\n", current);
 
-    int fd;
-    fd = open(readingFifo, O_RDONLY);
+    //int fd;
+    //fd = open(readingFifo, O_RDONLY);
     //if(fd == -1) break;
-    read(fd, token, 20);
-    if(strlen(token) == 0) continue;
+    read(readingFd, token, 20);
+    //if(strlen(token) == 0) continue;
     //printf("[p%d] after read\n", current);
-    close(fd);
+    //close(fd);
 
     
     int tokenInt = atoi(token) + 1;
@@ -71,11 +84,11 @@ int processWaitingRoom(char* readingFifo, char* writingFifo, int current, int n,
     }
     
     //printf("[p%d] popo\n", current);
-    fd = open(writingFifo, O_WRONLY);
+    //fd = open(writingFifo, O_WRONLY);
     //printf("[p%d] popo2\n", current);
-    write(fd, token, 20);
+    write(writingFd, token, 20);
     //printf("[p%d] popo3\n", current);
-    close(fd);
+    //close(fd);
     //printf("[p%d] popo4\n", current);
     //if(tokenInt + (n - current) > 100){
       //break;
@@ -83,6 +96,9 @@ int processWaitingRoom(char* readingFifo, char* writingFifo, int current, int n,
     //if(tokenInt >= 100) break;
   }
   
+  close(readingFd);
+  close(writingFd);
+
 
   printf("end of child\tpid: %d\n", getpid());
     
