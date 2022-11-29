@@ -28,13 +28,15 @@ char* substr(const char *src, int m, int n)
     return dest - len;
 }
 
+
+
 int main(int argc, char* argv[]){
 
   for(int i = 1; i < argc; i++){
 
     char command[500];
 
-    snprintf(command, sizeof(command), "pandoc %s -o %s.epub >/dev/null 2>&1", argv[i], substr(argv[i], 0, strlen(argv[i]) - 4));
+    snprintf(command, sizeof(command), "pandoc %s -o %s.epub >/dev/null 2>&1  &&  rm %s", argv[i], substr(argv[i], 0, strlen(argv[i]) - 4), argv[i]);
 
     //printf("%s\n", command);
 
@@ -62,7 +64,6 @@ int main(int argc, char* argv[]){
 
   printf("\nzipping files...\n");
   system("zip ebooks.zip *.epub");
-  system("rm *.txt");
 
   return EXIT_SUCCESS;
 

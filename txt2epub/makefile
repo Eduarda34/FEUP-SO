@@ -1,6 +1,6 @@
 #makefile
 
-all: setup compile run
+all: compile run
 
 setup:
 	cp books/* .
