@@ -34,7 +34,7 @@ int main(int argc, char* argv[]){
 
     char command[500];
 
-    snprintf(command, sizeof(command), "%s %s %s%s.%s", "pandoc ", argv[i], "-o ", substr(argv[i], 0, strlen(argv[i]) - 4), "epub >/dev/null 2>&1");
+    snprintf(command, sizeof(command), "pandoc %s -o %s.epub >/dev/null 2>&1", argv[i], substr(argv[i], 0, strlen(argv[i]) - 4));
 
     //printf("%s\n", command);
 
@@ -61,7 +61,8 @@ int main(int argc, char* argv[]){
     }
 
   printf("\nzipping files...\n");
-  system("zip ebooks.zip books/*.epub");
+  system("zip ebooks.zip *.epub");
+  system("rm *.txt");
 
   return EXIT_SUCCESS;
 
