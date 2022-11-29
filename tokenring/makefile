@@ -6,7 +6,7 @@ compile:
 	gcc tokenring.c -o tokenring
 
 run:
-	./tokenring 10000 0.001 0
+	./tokenring 10 0.001 1
 
 clean:
 	rm pipe*
