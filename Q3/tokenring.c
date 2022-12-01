@@ -9,6 +9,8 @@
 #include <string.h>
 #include <time.h>
 
+//processo filho
+
 int processWaitingRoom(char* readingFifo, char* writingFifo, int current, int n, float p, int t){
 
   //comeca a correr o rng do random()
@@ -21,7 +23,8 @@ int processWaitingRoom(char* readingFifo, char* writingFifo, int current, int n,
 
   int readingFd;
   int writingFd;
-    
+
+  //se for o primeiro processo, comeca por escrever em vez de ler  
   if(current == 1){
     sleep(2); 
     writingFd = open(writingFifo , O_WRONLY);
@@ -32,9 +35,10 @@ int processWaitingRoom(char* readingFifo, char* writingFifo, int current, int n,
   writingFd = open(writingFifo, O_WRONLY);
     
   while(1){
-
-    read(readingFd, token, 20);
     
+    read(readingFd, token, 20); //le o token
+    
+    //incrementa o valor do token
     int tokenInt = atoi(token) + 1;
     int newDecimal = 0;
     if(token[strlen(token) - 1] == '9') newDecimal = 1;
@@ -42,14 +46,16 @@ int processWaitingRoom(char* readingFifo, char* writingFifo, int current, int n,
    
 
 
-    float jail = ((float) (rand() % 10000))/10000;
+    float jail = ((float) (rand() % 10000))/10000; // numero aleatorio entre 0 e 1
 
+    //se o numero aleatorio for menor que p, o processo fica locked
     if(jail < p){
       printf("[p%d]\tlock on token (val = %s)\n", current, token);
       sleep(t);
       printf("[p%d]\tunlock token\n", current);
     }
     
+    //escreve o token
     write(writingFd, token, 20);
   }
   
@@ -69,16 +75,29 @@ int processWaitingRoom(char* readingFifo, char* writingFifo, int current, int n,
 
 int main(int argc, char* argv[]){
 
+  if(argc != 4){
+    printf("wrong input\n");
+    return EXIT_FAILURE;
+  }
+
   int n = atoi(argv[1]);
   float p = atof(argv[2]);
   int t = atoi(argv[3]);
+
+  if(n < 2){
+    printf("insuficcient number of processes and pipes");
+    return EXIT_FAILURE;
+  }
 
   if(p > 1 || p < 0){
     printf("p must be between 0 and 1 ");
     return EXIT_FAILURE;
   }
-
+  
+  //ciclo de 1 a n
   for(int i = 1; i <= n; i++){
+
+    //nomeacao dos pipes que processo i vai ler e escrever
 
     int current = i;
     int next;
@@ -96,16 +115,14 @@ int main(int argc, char* argv[]){
     snprintf(readingFifo, sizeof(readingFifo), "pipe%dto%d", before, current);
     snprintf(writingFifo, sizeof(writingFifo), "pipe%dto%d", current, next);
 
-    //printf("creating %s\n", writingFifo);
-
+    //criacao do pipe de escrita do processo i
     int fd = mkfifo(writingFifo, 0666);
 
+    //processo filho
     if(fork() == 0){
       processWaitingRoom(readingFifo, writingFifo, current, n, p, t);
-
       exit(0);
     }
-
   }
 
 
