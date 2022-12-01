@@ -9,7 +9,7 @@ compile:
 	gcc txt2epub.c -o txt2epub
 
 run:
-	./txt2epub *.txt
+	./txt2epub *.txt 
 
 clean:
 	rm *.epub

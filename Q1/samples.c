@@ -16,6 +16,21 @@ int checkParagraph(char* str){
 
 int main(int argc, char* argv[]){
 
+  if(argc != 4 || atoi(argv[2]) == 0 || atoi(argv[3]) == 0 || atoi(argv[1]) != 0 ){
+    printf("wrong input\n");
+    return EXIT_FAILURE;
+  }
+
+  if(argv[2] <= 0){
+    printf("number of samples should be greater than 0\n");
+    return EXIT_FAILURE;
+  }
+
+  if(argv[3] <= 0){
+    printf("number of characters should be greater than 0\n");
+    return EXIT_FAILURE;
+  }
+
   time_t tt;
   srand((int)time(&tt) % getpid());
 

@@ -4,7 +4,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-//claro que fui eu que fiz esta funcao 
+
 char* substr(const char *src, int m, int n)
 {
     // get the length of the destination string
@@ -29,25 +29,46 @@ char* substr(const char *src, int m, int n)
 }
 
 
+int checkIfTxt(char* book){
+  if(book[strlen(book) - 4] != '.') return EXIT_FAILURE;
+  if(book[strlen(book) - 3] != 't') return EXIT_FAILURE;
+  if(book[strlen(book) - 2] != 'x') return EXIT_FAILURE;
+  if(book[strlen(book) - 1] != 't') return EXIT_FAILURE;
+  return EXIT_SUCCESS;
+}
+
 
 int main(int argc, char* argv[]){
 
-  printf("%d\n", argc);
+  if(argc == 1){
+    printf("there are no books to convert\n");
+    return EXIT_FAILURE;
+  }
 
-  char* books[argc - 1];
-  int zipCommandLength = strlen("zip ebooks.zip ");
+  char* books[argc - 1];			//lista de livros em formato .epub
+  int zipCommandLength = strlen("zip ebooks.zip ");	//tamanho da string do comando para zippar os ficheiros
 
+  //ciclo para saber se todos os ficheiros sao do formato .txt 
+  for(int i = 1; i < argc; i++){
+    if(checkIfTxt(argv[i]) == EXIT_FAILURE){
+      printf("%s is not a txt\n", argv[i]);
+      return EXIT_FAILURE;
+    }
+  }
+
+  //ciclo que percorre os argumentos
   for(int i = 1; i < argc; i++){
 
-    char* book = strcat(substr(argv[i], 0, strlen(argv[i]) - 4), ".epub");
-    books[i - 1] = book;
+       char* book = strcat(substr(argv[i], 0, strlen(argv[i]) - 4), ".epub"); //livro em formato .epub
+    books[i - 1] = book; 			//adicao do livro na lista de livros
     zipCommandLength += strlen(book) + 1;
 
+    //processo filho
     if(fork() == 0){
 
       char command[500];
 
-      snprintf(command, sizeof(command), "pandoc %s -o %s >/dev/null 2>&1  &&  rm %s", argv[i], book, argv[i]);
+      snprintf(command, sizeof(command), "pandoc %s -o %s >/dev/null 2>&1  &&  rm %s", argv[i], book, argv[i]);		//commando do pandoc
 
       
       printf("[pid%d] converting %s...\n", getpid(), argv[i]);
@@ -62,11 +83,11 @@ int main(int argc, char* argv[]){
   /* Wait for children */
   
   int corpse;
-  int status; // if stattus == 0 then great success 
+  int status; // if status == 0 then great success 
   while ((corpse = wait(&status)) > 0){
 	
     if(status == EXIT_FAILURE){
-      printf("FAILLLLLLEDDDDDD");
+      printf("something went wrong");
       return EXIT_FAILURE;
     }
   }
