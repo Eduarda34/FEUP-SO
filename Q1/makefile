@@ -7,3 +7,6 @@ compile:
 
 run:
 	./samples quote.txt 15 9
+
+clean:
+	rm samples

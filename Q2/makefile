@@ -12,5 +12,6 @@ run:
 	./txt2epub *.txt 
 
 clean:
+	rm txt2epub
 	rm *.epub
 	rm ebooks.zip
