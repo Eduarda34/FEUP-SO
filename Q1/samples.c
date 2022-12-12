@@ -40,9 +40,9 @@ int main(int argc, char* argv[]){
   if (fp == NULL)
       exit(EXIT_FAILURE);
 
-  fseek(fp, 0, SEEK_END);
+  fseek(fp, 0, SEEK_END); //sets the file position of the stream to the given offset (0)
 
-  size_t len = ftell(fp);
+  size_t len = ftell(fp);  //
   
   if(len < atoi(argv[3])){
     printf("file smaller than n");
@@ -55,19 +55,19 @@ int main(int argc, char* argv[]){
 
   for(int i = 0; i < atoi(argv[2]); i++){
     
-    fp = fopen(argv[1], "r");
+    fp = fopen(argv[1], "r"); //abre pra ler
 
-    int offset = rand() % len;
+    int offset = rand() % len; //valor entre 0 e numero de caracteres do ficheiro
     while(1){
       if((len - offset) < atoi(argv[3])) offset = rand() % len;
       else break;
     }
 
-    fseek( fp, offset, SEEK_SET );
+    fseek( fp, offset, SEEK_SET ); //meter apontador do ficheiro algures aleatoriamente
 
-    fread(buffer, atoi(argv[3]), 1, fp);
+    fread(buffer, atoi(argv[3]), 1, fp); //le x caracteres a partir do apontador do ficheiro (fp)
     
-    while(checkParagraph(buffer) == EXIT_FAILURE){
+    while(checkParagraph(buffer) == EXIT_FAILURE){  //se sample de texto tiver paragrafo vai buscar outra sample
 
       offset = rand() % len;
       while(1){
